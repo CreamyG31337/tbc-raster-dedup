@@ -1,12 +1,18 @@
 # TBC Raster Dedup
 
-Tools for working with Trimble Business Center (TBC) `.vce` project files outside of TBC — specifically for deduplicating and consolidating large raster files (TIFFs, ECWs, etc.) that accumulate as copies across multiple projects.
+> [!WARNING]
+> **Experimental / known broken for orthophotos — do not run on live TBC projects without backups.**
+> Even though VCE path patching rewrites the file paths cleanly and TBC still opens the project, **repointed orthophotos stop displaying reliably in TBC** after running this tool. The read-only inspection commands (`list-paths`, `verify`, `scan`, `report`) are safe, and PRs/fixes are very welcome if you figure out what extra metadata or cache TBC expects!
 
-## Background
+Tools for working with Trimble Business Center (TBC) `.vce` project files outside of TBC — specifically an attempt at deduplicating and consolidating large raster files (TIFFs, ECWs, etc.) that accumulate as copies across multiple projects.
 
-TBC stores project data in `.vce` files, which are ZIP archives containing a binary `ObjectData` blob. Referenced file paths (rasters, CSVs, alignments, etc.) are stored as plain UTF-8 strings with VLQ-encoded length prefixes, making them patchable without TBC.
+## Background (why this exists)
 
-Each project tends to copy large raster imagery into its own subfolder, which quickly fills a OneDrive sync with hundreds of GB of duplicates. These tools find those duplicates, move one canonical copy to a shared library folder, and update all VCE references to point there.
+When creating a TBC project, you are stuck with an awkward tradeoff:
+- **Project folders enabled:** point cloud databases and orthophotos are copied into a subfolder named after the project. Your point cloud database stays intact, but every project gets its own multi-GB copy of the same GeoTIFF/ECW orthophotos (quickly filling OneDrive/shared drives with hundreds of GB of duplicates).
+- **Project folders disabled:** orthophotos aren't wastefully duplicated, **but** point cloud databases become fragile and can silently disappear from the project later.
+
+This tool tried to get the best of both worlds by keeping project folders enabled and patching the `.vce` ZIP archive's binary `ObjectData` blob (where referenced paths are stored as UTF-8 strings with VLQ-encoded length prefixes) to point rasters at a single shared library folder. In practice, TBC still doesn't reliably display the repointed orthophotos afterward — likely because TBC caches or validates something else alongside the raw path. If you know TBC's internals and can fix it, PRs are welcome!
 
 ## Setup
 
