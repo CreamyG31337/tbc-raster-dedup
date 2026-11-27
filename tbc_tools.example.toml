@@ -1,0 +1,78 @@
+# tbc_tools.toml — configuration for tbc_tools.py
+#
+# SETUP: Copy this file to tbc_tools.toml and edit for your environment.
+#        tbc_tools.toml is gitignored — it can safely contain real usernames
+#        and paths without being committed.
+#
+# String values use TOML basic strings (double quotes).
+# Backslashes must be doubled: C:\\Users\\...
+# Apostrophes are fine inside double-quoted strings.
+#
+# NOTE: TOML scalar/array keys (raster_library, vce_roots, etc.) MUST come
+# before the [[path_mappings]] array-of-tables below. Once an array-of-tables
+# header appears, every following key is parsed as part of that table, not the
+# document root — which silently empties these settings.
+
+# ── Raster deduplication ──────────────────────────────────────────────────────
+
+# Where to move one canonical copy of each unique raster.
+# Should be somewhere all users can reach (e.g. on the mapped drive).
+raster_library = "S:\\GIS\\Basemaps"
+
+# File extensions treated as rasters.
+raster_extensions = [".tif", ".tiff", ".ecw", ".img", ".sid", ".jp2",
+                     ".jpg", ".jpeg", ".png", ".dem", ".adf", ".las", ".laz"]
+
+# Only consider rasters at or above this size (MB).
+min_raster_mb = 50
+
+# ── VCE search roots ──────────────────────────────────────────────────────────
+
+# Directories to search recursively for .vce files when running
+# normalize or list-paths without an explicit path argument.
+vce_roots = [
+    "S:\\Working Data",
+]
+
+# ── Stale lock handling ───────────────────────────────────────────────────────
+
+# While a project is open, TBC keeps a sibling "Name.vce,lk" lock file. A lock
+# left behind by a crashed/force-killed TBC session is "stale". Lock files at
+# least this many days old can be removed with `clear-locks` (or the
+# --clear-stale-locks flag on plan/execute) so those projects can be processed.
+# Raise this if your team legitimately leaves projects open for long periods.
+stale_lock_days = 7
+
+# ── Audit log ─────────────────────────────────────────────────────────────────
+
+# Append-only JSONL trail of every mutating action (file moves, deletions, VCE
+# rewrites, backups, lock removals). One JSON object per line, each with an
+# ISO-8601 timestamp — so "what happened to this file?" always has a definitive,
+# greppable answer. Leave unset to use tbc_tools.audit.jsonl beside the script,
+# or point it at a shared location so every user's runs land in one file.
+# Override per-run with --log. Read-only commands (scan, verify, ...) don't log.
+# log_file = "S:\\GIS\\Basemaps\\tbc_tools.audit.jsonl"
+
+# ── Path prefix mappings ──────────────────────────────────────────────────────
+# Applied to every path string found in VCE files.
+# Rules are applied in order — put more specific prefixes first.
+# Comparisons are case-insensitive; the replacement uses new as-is.
+#
+# Common use case: multiple users share a OneDrive folder mapped as a drive
+# letter (e.g. S:\) on each machine, but each user's local OneDrive sync
+# path differs. Add one mapping per user.
+#
+# Keep these [[path_mappings]] blocks LAST in the file (see note at top).
+
+[[path_mappings]]
+old = "C:\\Users\\user1\\OneDrive - Company\\Project Folder\\"
+new = "S:\\"
+
+[[path_mappings]]
+old = "C:\\Users\\user2\\OneDrive - Company\\Shared - Project Folder\\"
+new = "S:\\"
+
+# Add more users as needed:
+# [[path_mappings]]
+# old = "C:\\Users\\user3\\OneDrive - Company\\Project Folder\\"
+# new = "S:\\"

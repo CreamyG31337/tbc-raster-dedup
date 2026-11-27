@@ -1,0 +1,32 @@
+__pycache__/
+*.pyc
+.venv/
+*.json
+*.vce
+*.vce.bak
+*.vce.patching
+# Personal config (has real usernames/paths). Copy tbc_tools.example.toml to
+# tbc_tools.toml and fill in your own values — never commit the real one.
+tbc_tools.toml
+
+# Real run script (copied from run_consolidation.example.bat, may hold real
+# paths). The .example.bat template is committed; the working copy is not.
+run_consolidation.bat
+*.log
+# Audit trail written by mutating commands (holds real paths; local to each user)
+*.jsonl
+review_changes.txt
+
+# Generated previews/reports
+report.md
+*_report.md
+
+# Throwaway diagnostic / scratch scripts (underscore-prefixed, or in scratch/)
+_*.py
+scratch/
+
+# Machine-local: generated graph (holds local paths) and tool settings (hold user paths)
+graphify-out/
+.claude/
+.mcp.json
+.vscode/
